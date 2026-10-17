@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Sistema de EPI</title>
+    <style>
+        body { margin: 0; font-family: Arial, sans-serif; display: flex; flex-direction: column; height: 100vh; }
+        .barra-topo { display: flex; justify-content: space-between; align-items: center; border-bottom: 2px solid #ccc; padding: 15px 30px; font-weight: bold; background-color: #fff; }
+        .container-principal { display: flex; flex-grow: 1; }  
+        .menu-lateral { width: 150px; border-right: 2px solid #ccc; padding: 15px; background-color: #fff; }
+        .categoria { font-weight: bold; margin-top: 15px; font-size: 16px; color: #2c2c2c; }
+        .sub-menu { list-style-type: none; padding-left: 10px; margin: 5px 0 0 0; }
+        .sub-menu li { font-size: 14px; margin-bottom: 8px; }
+        .sub-menu a { text-decoration: none; color: #555; display: block; }
+        .sub-menu a:hover { color: #000; font-weight: bold; }
+        .conteudo { padding: 20px; flex-grow: 1; background: #fafafa; }
+        .alerta { padding: 10px; margin-bottom: 15px; border-radius: 4px; color: #fff; font-weight: bold; }
+        .alerta.error { background-color: #e74c3c; }
+        .alerta.success { background-color: #2ecc71; }
+    </style>
+</head>
+<body>
+    <div class="barra-topo">
+        <div>Home</div>
+        <div>👤 Angeline</div>
+    </div>
+    <div class="container-principal">
+        <div class="menu-lateral">
+            <div class="categoria">Cadastros
+                <ul class="sub-menu">
+                    <li><a href="/equipamentos/">Equipamentos</a></li>
+                    <li><a href="/colaboradores/">Colaboradores</a></li>
+                </ul>
+            </div>
+            <div class="categoria">Ação
+                <ul class="sub-menu">
+                    <li><a href="/controle/">Controle de EPI</a></li>
+                </ul>
+            </div>
+            <div class="categoria">Relatórios
+                <ul class="sub-menu">
+                    <li><a href="/relatorios/">Empréstimos</a></li>
+                </ul>
+            </div>
+        </div>
+
+        <div class="conteudo">
+            {% if messages %}
+                {% for message in messages %}
+                    <div class="alerta {{ message.tags }}">{{ message }}</div>
+                {% endfor %}
+            {% endif %}
+
+            {% block conteudo %}{% endblock %}
+        </div>
+    </div>
+</body>
+</html>
