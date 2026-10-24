@@ -25,4 +25,7 @@ urlpatterns = [
     path('colaboradores/', views.colaboradores, name='colaboradores'),
     path('controle/', views.controle, name='controle'),
     path('relatorios/', views.relatorios, name='relatorios'),
+    path('excluir-colaborador/<int:id>/', views.excluir_colaborador, name='excluir_colaborador'),
+    path('excluir-epi/<int:id>/', views.excluir_epi, name='excluir_epi'),
+    path('excluir-emprestimo/<int:id>/', views.excluir_emprestimo, name='excluir_emprestimo'),
 ]

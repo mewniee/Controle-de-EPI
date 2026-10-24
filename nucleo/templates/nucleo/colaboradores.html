@@ -1,48 +1,56 @@
 {% extends 'nucleo/base.html' %}
 {% block conteudo %}
     
+    <div style="max-width: 1000px; margin: 0 auto;">
+    <div style="margin-bottom: 20px;">
+        <a href="/colaboradores/" style="padding: 10px 20px; background: #007bff; color: white; text-decoration: none; border-radius: 4px; font-weight: bold;">+ Adicionar Novo</a>
+    </div>
+
     <!-- formulario -->
-    <div style="border: 1px solid #ccc; padding: 20px; background: #fff; margin-bottom: 20px; border-radius: 5px;">
-        <h3 style="margin-top: 0;">Cadastrar Colaborador</h3>
+<div style="border: 1px solid #ccc; padding: 20px; background: #fff; margin-bottom: 20px; border-radius: 5px;">
+        <h3 style="margin-top: 0;">{% if obj_editar %}Editar Colaborador{% else %}Cadastrar Colaborador{% endif %}</h3>
         <form method="POST" action="/colaboradores/">
             {% csrf_token %}
+            {% if obj_editar %}
+                <input type="hidden" name="id_editar" value="{{ obj_editar.id }}">
+            {% endif %}
+
             <div style="margin-bottom: 15px;">
-                <label style="display: block; margin-bottom: 5px; font-weight: bold; color: #555; font-size: 14px;">Nome</label>
-                <input type="text" name="nome" placeholder="Nome Completo" required style="width: 100%; padding: 10px; border: 1px solid #ccc; border-radius: 4px; box-sizing: border-box; margin-bottom: 10px;">
+                <label style="display: block; margin-bottom: 5px; font-weight: bold;">Nome</label>
+                <input type="text" name="nome" value="{% if obj_editar %}{{ obj_editar.nome }}{% endif %}" required style="width: 100%; padding: 10px; border: 1px solid #ccc; border-radius: 4px; margin-bottom: 10px;">
                 
-                <label style="display: block; margin-bottom: 5px; font-weight: bold; color: #555; font-size: 14px;">Matrícula</label>
-                <input type="text" name="matricula" placeholder="Ex: 123456" required style="width: 100%; padding: 10px; border: 1px solid #ccc; border-radius: 4px; box-sizing: border-box; margin-bottom: 10px;">
+                <label style="display: block; margin-bottom: 5px; font-weight: bold;">Matrícula</label>
+                <input type="text" name="matricula" value="{% if obj_editar %}{{ obj_editar.matricula }}{% endif %}" required style="width: 100%; padding: 10px; border: 1px solid #ccc; border-radius: 4px; margin-bottom: 10px;">
                 
-                <label style="display: block; margin-bottom: 5px; font-weight: bold; color: #555; font-size: 14px;">Setor</label>
-                <input type="text" name="setor" placeholder="Ex: Produção" required style="width: 100%; padding: 10px; border: 1px solid #ccc; border-radius: 4px; box-sizing: border-box;">
+                <label style="display: block; margin-bottom: 5px; font-weight: bold;">Setor</label>
+                <input type="text" name="setor" value="{% if obj_editar %}{{ obj_editar.setor }}{% endif %}" required style="width: 100%; padding: 10px; border: 1px solid #ccc; border-radius: 4px;">
             </div>
-            <button type="submit" style="width: 100%; padding: 12px; background: #333; color: white; cursor: pointer; border: none; border-radius: 4px; font-weight: bold;">Salvar Colaborador</button>
+            
+            <button type="submit" style="width: 100%; padding: 12px; background: {% if obj_editar %}#ffc107{% else %}#333{% endif %}; color: {% if obj_editar %}#000{% else %}white{% endif %}; cursor: pointer; border: none; border-radius: 4px; font-weight: bold;">
+                {% if obj_editar %}Atualizar Colaborador{% else %}Salvar Colaborador{% endif %}
+            </button>
         </form>
     </div>
 
-    <!-- tabela -->
     <div style="border: 1px solid #ccc; padding: 20px; background: #fff; border-radius: 5px;">
-        <h3 style="margin-top: 0;">Lista de Colaboradores</h3>
-        <form method="GET" action="/colaboradores/" style="margin-bottom: 15px; display: flex; gap: 10px;">
-            <input type="text" name="busca" placeholder="Pesquisar..." style="padding: 8px; flex-grow: 1; border: 1px solid #ccc; border-radius: 4px;">
-            <button type="submit" style="padding: 8px 15px; background: #efefef; border: 1px solid #ccc; border-radius: 4px; cursor: pointer;">Buscar</button>
-        </form>
         <table border="1" style="width: 100%; text-align: left; border-collapse: collapse;">
             <tr style="background: #f1f1f1;">
                 <th style="padding: 10px;">Matrícula</th>
                 <th style="padding: 10px;">Nome</th>
                 <th style="padding: 10px;">Setor</th>
+                <th style="padding: 10px; text-align: center;">Ações</th>
             </tr>
             {% for c in colaboradores %}
             <tr>
                 <td style="padding: 10px;">{{ c.matricula }}</td>
                 <td style="padding: 10px;">{{ c.nome }}</td>
                 <td style="padding: 10px;">{{ c.setor }}</td>
+                <td style="padding: 10px; text-align: center;">
+                    <a href="?editar={{ c.id }}" style="color: black; background: #ffc107; padding: 5px 10px; text-decoration: none; border-radius: 3px; font-size: 12px; margin-right: 5px;">Editar</a>
+                    <a href="/excluir-colaborador/{{ c.id }}/" style="color: white; background: red; padding: 5px 10px; text-decoration: none; border-radius: 3px; font-size: 12px;">Remover</a>
+                </td>
             </tr>
-            {% empty %}
-            <tr><td colspan="3" style="text-align: center; padding: 20px;">Nenhum colaborador encontrado.</td></tr>
             {% endfor %}
         </table>
     </div>
-
 {% endblock %}

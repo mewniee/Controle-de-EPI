@@ -1,46 +1,55 @@
 {% extends 'nucleo/base.html' %}
 {% block conteudo %}
+
+    <div style="max-width: 1000px; margin: 0 auto;">
+    <div style="margin-bottom: 20px;">
+        <a href="/controle/" style="padding: 10px 20px; background: #007bff; color: white; text-decoration: none; border-radius: 4px; font-weight: bold;">+ Novo Empréstimo</a>
+    </div>
     
     <!-- formulario -->
     <div style="border: 1px solid #ccc; padding: 20px; background: #fff; margin-bottom: 20px; border-radius: 5px;">
-        <h3 style="margin-top: 0;">Registrar Retirada de EPI</h3>
+        <h3 style="margin-top: 0;">{% if obj_editar %}Editar Empréstimo{% else %}Registrar Retirada de EPI{% endif %}</h3>
         <form method="POST" action="/controle/">
             {% csrf_token %}
+            {% if obj_editar %}
+                <input type="hidden" name="id_editar" value="{{ obj_editar.id }}">
+            {% endif %}
+            
             <div style="margin-bottom: 15px;">
-                <label style="display: block; margin-bottom: 5px; font-weight: bold; color: #555; font-size: 14px;">Colaborador</label>
-                <select name="colaborador" required style="width: 100%; padding: 10px; border: 1px solid #ccc; border-radius: 4px; box-sizing: border-box; margin-bottom: 10px;">
+                <label style="display: block; margin-bottom: 5px; font-weight: bold;">Colaborador</label>
+                <select name="colaborador" required style="width: 100%; padding: 10px; border: 1px solid #ccc; border-radius: 4px; margin-bottom: 10px;">
                     <option value="">Selecione um colaborador...</option>
                     {% for c in colaboradores %}
-                        <option value="{{ c.id }}">{{ c.nome }} (Matrícula: {{ c.matricula }})</option>
+                        <option value="{{ c.id }}" {% if obj_editar and obj_editar.emprestimo.colaborador.id == c.id %}selected{% endif %}>
+                            {{ c.nome }} (Matrícula: {{ c.matricula }})
+                        </option>
                     {% endfor %}
                 </select>
                 
-                <label style="display: block; margin-bottom: 5px; font-weight: bold; color: #555; font-size: 14px;">Equipamento (EPI)</label>
-                <select name="epi" required style="width: 100%; padding: 10px; border: 1px solid #ccc; border-radius: 4px; box-sizing: border-box;">
+                <label style="display: block; margin-bottom: 5px; font-weight: bold;">Equipamento (EPI)</label>
+                <select name="epi" required style="width: 100%; padding: 10px; border: 1px solid #ccc; border-radius: 4px;">
                     <option value="">Selecione um equipamento...</option>
                     {% for epi in epis %}
-                        <option value="{{ epi.id }}">{{ epi.nome }} (Estoque: {{ epi.estoque }})</option>
+                        <option value="{{ epi.id }}" {% if obj_editar and obj_editar.epi.id == epi.id %}selected{% endif %}>
+                            {{ epi.nome }} (Estoque: {{ epi.estoque }})
+                        </option>
                     {% endfor %}
                 </select>
             </div>
-            <button type="submit" style="width: 100%; padding: 12px; background: #333; color: white; cursor: pointer; border: none; border-radius: 4px; font-weight: bold;">Registrar Empréstimo</button>
+            <button type="submit" style="width: 100%; padding: 12px; background: {% if obj_editar %}#ffc107{% else %}#333{% endif %}; color: {% if obj_editar %}#000{% else %}white{% endif %}; cursor: pointer; border: none; border-radius: 4px; font-weight: bold;">
+                {% if obj_editar %}Atualizar Empréstimo{% else %}Registrar Empréstimo{% endif %}
+            </button>
         </form>
     </div>
-
     <!-- tabela -->
     <div style="border: 1px solid #ccc; padding: 20px; background: #fff; border-radius: 5px;">
-        <h3 style="margin-top: 0;">Histórico de Entregas</h3>
-        <form method="GET" action="/controle/" style="margin-bottom: 15px; display: flex; gap: 10px;">
-            <input type="text" name="busca" placeholder="Pesquisar por nome do colaborador..." style="padding: 8px; flex-grow: 1; border: 1px solid #ccc; border-radius: 4px;">
-            <button type="submit" style="padding: 8px 15px; background: #efefef; border: 1px solid #ccc; border-radius: 4px; cursor: pointer;">Buscar</button>
-        </form>
         <table border="1" style="width: 100%; text-align: left; border-collapse: collapse;">
             <tr style="background: #f1f1f1;">
                 <th style="padding: 10px;">Cód.</th>
                 <th style="padding: 10px;">Colaborador</th>
                 <th style="padding: 10px;">Equipamento</th>
                 <th style="padding: 10px;">Status</th>
-                <th style="padding: 10px; text-align: center;">Ações</th> <!-- COLUNA NOVA -->
+                <th style="padding: 10px; text-align: center;">Ações</th>
             </tr>
             
             {% for emp in emprestimos %}
@@ -53,25 +62,22 @@
                         <span style="color: green; font-weight: bold;">{{ emp.emprestimo.status }}</span>
                     {% elif emp.emprestimo.status == "Perdido" %}
                         <span style="color: darkred; font-weight: bold;">{{ emp.emprestimo.status }}</span>
-                    {% elif emp.emprestimo.status == "Atrasado" %}
-                        <span style="color: red; font-weight: bold;">{{ emp.emprestimo.status }}</span>
                     {% else %}
                         <span style="color: orange; font-weight: bold;">{{ emp.emprestimo.status }}</span>
                     {% endif %}
                 </td>
                 
-                <!-- escolhas -->
-                <td style="padding: 10px; text-align: center; display: flex; gap: 5px; justify-content: center;">
+                <td style="padding: 10px; text-align: center; display: flex; gap: 5px; justify-content: center; flex-wrap: wrap;">
+                    <a href="?editar={{ emp.id }}" style="color: black; background: #ffc107; padding: 5px 10px; text-decoration: none; border-radius: 3px; font-size: 12px;">Editar</a>
+
                     {% if emp.emprestimo.status == "Emprestado" or emp.emprestimo.status == "Atrasado" %}
-                        
                         <form method="POST" action="/controle/" style="margin: 0;">
                             {% csrf_token %}
                             <input type="hidden" name="acao" value="atualizar_status">
                             <input type="hidden" name="item_id" value="{{ emp.id }}">
                             <input type="hidden" name="novo_status" value="Devolvido">
-                            <button type="submit" style="color: white; background: green; padding: 5px 10px; border: none; border-radius: 3px; font-size: 12px; cursor: pointer;">Devolvido</button>
+                            <button type="submit" style="color: white; background: green; padding: 5px 10px; border: none; border-radius: 3px; font-size: 12px; cursor: pointer;">Devolver</button>
                         </form>
-                        
                         <form method="POST" action="/controle/" style="margin: 0;">
                             {% csrf_token %}
                             <input type="hidden" name="acao" value="atualizar_status">
@@ -79,17 +85,12 @@
                             <input type="hidden" name="novo_status" value="Perdido">
                             <button type="submit" style="color: white; background: darkred; padding: 5px 10px; border: none; border-radius: 3px; font-size: 12px; cursor: pointer;">Perdido</button>
                         </form>
-
-                    {% else %}
-                        <span style="color: #999; font-style: italic;">Encerrado</span>
                     {% endif %}
+                    
+                    <a href="/excluir-emprestimo/{{ emp.id }}/" style="color: white; background: black; padding: 5px 10px; text-decoration: none; border-radius: 3px; font-size: 12px;">Apagar</a>
                 </td>
             </tr>
-            {% empty %}
-            <tr><td colspan="5" style="text-align: center; padding: 20px;">Nenhum registro encontrado.</td></tr>
             {% endfor %}
-            
         </table>
     </div>
-
 {% endblock %}
